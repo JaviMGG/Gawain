@@ -1,7 +1,11 @@
+// main_window.h
 #ifndef MAIN_WINDOW_H
 #define MAIN_WINDOW_H
 
 #include <QMainWindow>
+#include <QPushButton>
+#include <QLineEdit>
+#include <QTextEdit>
 
 class MainWindow : public QMainWindow
 {
@@ -9,6 +13,25 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
+
+private:
+    // Campos de texto
+    QLineEdit *campoApp;
+    QLineEdit *campoContraseña;
+
+    // Botones de acción principales
+    QPushButton *botonGenerar;
+    QPushButton *botonListar;
+    QPushButton *botonBuscar;
+    QPushButton *botonEliminar;
+
+    // Área de resultados
+    QTextEdit *areaResultados;
+
+    // Botones secundarios y de salida
+    QPushButton *botonCopiar;
+    QPushButton *botonLimpiar;
+    QPushButton *botonSalir;
 };
 
-#endif
+#endif // MAIN_WINDOW_H

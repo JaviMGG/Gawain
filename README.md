@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="logo.png" alt="Logo de Gawain" width="280"/>
+</div>
+
 # Gawain
 
 Gestor de contraseñas de escritorio escrito en C++ como proyecto educativo.
