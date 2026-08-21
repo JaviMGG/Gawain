@@ -154,4 +154,29 @@ MainWindow::MainWindow(QWidget *parent)
     layoutPrincipal->addLayout(filaInferior);
 
     setCentralWidget(contenedor);
+
+    //Listar
+    connect(botonListar, &QPushButton::clicked, this, [this] {
+        areaResultados->setPlainText(QString::fromStdString(listarTodo()));
+    });
+
+    //Generar
+    connect(botonGenerar, &QPushButton::clicked, this, [this] {
+        string app = campoApp->text().toStdString();
+        if (app.empty())
+        {
+            areaResultados->setPlainText("Escribe el nombre de la app.");
+            return;
+        }
+        string cont = generarContraseña();
+        añadirContraseñas(app, cont);
+        guardar(clave, salt, opslimit, memlimit);
+        areaResultados->setPlainText(QString::fromStdString(
+            "Contraseña generada para " + app + ":\n" + cont));
+    });
+
+    //Salir
+    connect(botonSalir, &QPushButton::clicked, this, &QWidget::close);
+
+    
 }

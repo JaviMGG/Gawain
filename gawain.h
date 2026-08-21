@@ -8,6 +8,10 @@
 using namespace std;
 
 extern map<string, vector<string>> gestionador;
+extern unsigned char salt[16];
+extern unsigned char clave[32];
+extern unsigned long long opslimit;
+extern size_t memlimit;
 
 string generarContraseña();
 string getContraseñasToString(const vector<string> &contraseñas);
