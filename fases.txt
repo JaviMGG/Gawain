@@ -1,0 +1,34 @@
+Hoja de ruta de Gawain
+Fase 0 — Andamiaje
+- Configurar cómo compilas y ejecutas (g++ a secas, o un Makefile cuando crezca).
+- Decidir el esqueleto: un único main.cpp al principio es correcto; la separación en módulos la introducirás cuando duela no tenerla.
+- Conceptos a tocar: argumentos de línea de comandos (argc/argv), que ya usas.
+
+
+Fase 1 — Gestor funcional sin cifrado
+El objetivo: poder añadir, listar, buscar y borrar entradas (servicio/usuario/contraseña).
+- Diseña la estructura de una entrada (aquí aparece tu primera decisión: struct vs class).
+- ¿Cómo guardas las entradas entre ejecuciones? (aparece el guardado en archivo y su contrapartida: cargar, parsear, validar).
+- Conceptos a repasar: struct/class, std::vector, std::string, flujos de archivo, manejo básico de errores.
+- Decisión tuya: ¿menú interactivo tipo "selecciona opción 1/2/3", o comandos tipo gawain add --service spotify? Cada una entrena cosas distintas.
+
+
+Fase 2 — Generador de contraseñas
+- Longitud configurable, incluir/excluir mayúsculas, dígitos, símbolos.
+- Concepto clave a investigar: por qué se usa <random> y no rand(). Es una de las mejores lecciones de seguridad que puedes aprender.
+- Fíjate cómo encaja esto con el gestor: el generador debe poder alimentar a la fase de guardado.
+
+
+Fase 3 — Cifrado real (aquí se pone seria la cosa)
+Es la fase donde dejas de tener un juguete y tienes un gestor de verdad. Orden de aprendizaje:
+1. Maestra + derivación: tu "contraseña maestra" no se usa directamente; primero aprende qué es un salt y por qué existe, y qué es PBKDF2/Argon2.
+2. Cifrado autenticado: investiga qué es AES-GCM y por qué se prefiere sobre "cifrar a secas" (la parte de la etiqueta/tag de autenticación).
+3. Formato de archivo: el disco tiene que guardar salt + nonce/IV + ciphertext + tag. Diseñar ese formato es un reto en sí mismo.
+4. En paralelo, estudia la librería (OpenSSL o libsodium) y la diferencia entre trabajar con bytes y trabajar con texto.
+- Conceptos a repasar: punteros/arrays de bytes, memoria, y las distancias entre una clave derivada y una contraseña.
+
+
+Fase 4 — Endurecimiento
+- Limpiar buffers de contraseñas en memoria, evitar que se queden restos.
+- Verificación de la maestra al desbloquear, manejo de errores de integridad.
+- Empiezas a pensar como alguien que ataca tu propio programa. Muy recomendable.
