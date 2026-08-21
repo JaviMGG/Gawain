@@ -1,4 +1,5 @@
 #include "main_window.h"
+#include "gawain.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFormLayout>
