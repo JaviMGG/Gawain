@@ -6,7 +6,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include <QApplication>
-#include <main_window.h>
+#include "main_window.h"
 
 using namespace std;
 unsigned char salt[16];
@@ -90,7 +90,7 @@ static void bienvenida(int opcion)
     }
 }
 
-int main()
+int main(int argc, char *argv[])
 {
     ifstream entrada("archivo.txt");
     string contenido;
@@ -133,21 +133,12 @@ int main()
         return 1;
     }
 
-    int opcion = 0;
-    while (true)
-    {
-        cout << "Bienvenido, por favor escoge una opcion" << endl;
-        if (!(cin >> opcion))
-        {
-            break;
-        }
-        if (opcion == 0)
-        {
-            break;
-        }
-        bienvenida(opcion);
-    }
+    QApplication app(argc, argv);
+    MainWindow ventana;
+    ventana.show();
+    int resultado = app.exec();
+
     cout << "Adios" << endl;
     sodium_memzero(clave, sizeof(clave));
-    return 0;
+    return resultado;
 }

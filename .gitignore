@@ -1,0 +1,15 @@
+# Base de datos cifrada de contraseñas (¡nunca subir!)
+archivo.txt
+
+# Binarios compilados
+gawain
+*.o
+
+# Directorio de build de CMake
+build/
+
+# Archivos del sistema / editores
+.vscode/
+.idea/
+*.swp
+.DS_Store
