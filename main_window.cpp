@@ -156,6 +156,19 @@ MainWindow::MainWindow(QWidget *parent)
 
     setCentralWidget(contenedor);
 
+    //Buscar
+    connect(botonBuscar, &QPushButton::clicked, this, [this]{
+        string app = campoApp->text().toStdString();
+        string pw = buscarContraseña(campoApp->text().toStdString());
+        if (app.empty())
+        {
+            areaResultados->setPlainText("Escribe el nombre de la app.");
+            return;
+        }
+        areaResultados->setPlainText(QString::fromStdString(
+            pw));
+    });
+
     //Listar
     connect(botonListar, &QPushButton::clicked, this, [this] {
         areaResultados->setPlainText(QString::fromStdString(listarTodo()));

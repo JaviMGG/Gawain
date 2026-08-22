@@ -11,7 +11,7 @@ void guardar(const unsigned char clave[32], const unsigned char salt[16], unsign
     string textoPlano;
     for (auto &&elemento : gestionador)
     {
-        textoPlano += elemento.first + getContraseñasToStringConDelimitador(elemento.second) + "\n";
+        textoPlano += elemento.first + elemento.second + "\n";
     }
 
     string textoCifrado = cifrarArchivo(textoPlano, clave, salt, opslimit, memlimit);

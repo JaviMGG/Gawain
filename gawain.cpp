@@ -7,7 +7,8 @@ using namespace std;
 
 const char elementosTeclado[] = "1234567890qwertyuioplkjhgfdsazxcvbnmABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-map<string, vector<string>> gestionador;
+//diccionario con clave el nombre de la app y valor su contraseña
+map<string, string> gestionador;
 
 /**
  * Metodo que genera una contraseña.
@@ -26,18 +27,13 @@ string generarContraseña()
 }
 
 /**
- * Metodo que coge todas las contraseñas guardadas y las devuelve en texto
+ * Metodo que coge las contraseñas guardadas y las devuelve en texto
  * @param vector
  * @return string
  */
-string getContraseñasToString(const vector<string> &contraseñas)
+string getContraseñasToString(const string &app)
 {
-    string todo;
-    for (const auto &contraseña : contraseñas)
-    {
-        todo += " " + contraseña;
-    }
-    return todo;
+    return gestionador[app];
 }
 
 /**
@@ -45,38 +41,28 @@ string getContraseñasToString(const vector<string> &contraseñas)
  * @param vector
  * @return string
  */
-string getContraseñasToStringConDelimitador(const vector<string> &contraseñas)
+string getContraseñasToStringConDelimitador(const string &app)
 {
-    string todo;
-    for (const auto &contraseña : contraseñas)
-    {
-        todo += "|" + contraseña;
-    }
-    return todo;
+    return "|" + gestionador[app];
 }
 
 /**
- * Metodo que añade una contraseña al vector de contraseñas de una app.
+ * Metodo que asocia una contraseña a una app.
  * @param string, string
 */
 void añadirContraseñas(const string &app, const string &contraseña)
 {
-    gestionador[app].push_back(contraseña);
+    gestionador[app] = contraseña;
 }
 
 /**
  * Metodo que devuelve todas las contraseñas de un vector.
- * @param vector<string>
+ * @param string
  * @return string
 */
-string listarContraseñas(const vector<string> &contraseñas)
+string listarContraseñas(const string &app)
 {
-    string todas;
-    for (const auto &contraseña : contraseñas)
-    {
-        todas += " " + contraseña;
-    }
-    return todas;
+    return gestionador[app];    
 }
 
 /**
@@ -88,8 +74,10 @@ string listarTodo()
     string todo;
     for (const auto &elemento : gestionador)
     {
-        todo += " App: " + elemento.first + ", Contraseñas: " + getContraseñasToString(elemento.second) + "\n";
+        // Añadimos la información de cada elemento al string 'todo'
+        todo += " App: " + elemento.first + ", Contraseña: " + elemento.second + "\n";
     }
+    // Una vez terminado el bucle, devolvemos el string completo
     return todo;
 }
 
@@ -100,7 +88,8 @@ string buscarContraseña(const string &app)
     {
         return "";
     }
-    return listarContraseñas(itApp->second);
+    // Devuelve el valor directamente usando el iterador
+    return itApp->second; 
 }
 
 bool eliminarContraseña(const string &app, const string &contraseña)
@@ -112,15 +101,9 @@ bool eliminarContraseña(const string &app, const string &contraseña)
         return false;
     }
 
-    vector<string> &contraseñasApp = itApp->second;
-    auto itContraseña = find(contraseñasApp.begin(), contraseñasApp.end(), contraseña);
-    if (itContraseña != contraseñasApp.end())
+    gestionador[app].clear();
+    if (gestionador[app].empty())
     {
-        contraseñasApp.erase(itContraseña);
-        if (contraseñasApp.empty())
-        {
-            gestionador.erase(itApp);
-        }
         return true;
     }
     else

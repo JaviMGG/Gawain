@@ -18,3 +18,6 @@ add_executable(gawain
 )
 
 target_link_libraries(gawain PRIVATE Qt6::Widgets sodium)
+
+# Warnings estrictos
+target_compile_options(gawain PRIVATE -Wall -Wextra)
