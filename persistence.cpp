@@ -49,6 +49,22 @@ bool cargar(const unsigned char clave[32])
         stringstream flujo(linea);
         string app;
         getline(flujo, app, '|');
+
+        if (linea.find('|') == string::npos)
+        {
+            // Formato antiguo (sin separador): la contraseña generada
+            // ocupa siempre 40 caracteres al final de la línea.
+            const size_t LARGO_GENERADA = 40;
+            if (linea.size() <= LARGO_GENERADA)
+            {
+                continue;
+            }
+            string contraseñaVieja = linea.substr(linea.size() - LARGO_GENERADA);
+            string appVieja = linea.substr(0, linea.size() - LARGO_GENERADA);
+            añadirContraseñas(appVieja, contraseñaVieja);
+            continue;
+        }
+
         string contraseña;
         while (getline(flujo, contraseña, '|'))
         {

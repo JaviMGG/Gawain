@@ -58,6 +58,11 @@ MainWindow::MainWindow(QWidget *parent)
             border: 1px solid #e99a2d;
             color: #0b0a0a;
         }
+        QPushButton:disabled {
+            background-color: #171310;
+            border: 1px solid #2c2317;
+            color: #6b5f4d;
+        }
         QGroupBox {
             border: 1px solid #3d3020;
             border-radius: 8px;
@@ -105,7 +110,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Botones secundarios
     botonCopiar = new QPushButton("Copiar al portapapeles");
     botonLimpiar = new QPushButton("Limpiar");
-    
+    botonSeguro = new QCheckBox("Modo seguro");
     botonSalir = new QPushButton("Salir");
     botonSalir->setObjectName("botonSalir"); // Identificador para el estilo rojo
 
@@ -131,7 +136,7 @@ MainWindow::MainWindow(QWidget *parent)
     formulario->setSpacing(12);
     formulario->addRow("App:", campoApp);
     formulario->addRow("Contraseña:", campoContraseña);
-
+    
     // 2. Fila de botones de acción
     QHBoxLayout *filaAcciones = new QHBoxLayout;
     filaAcciones->setSpacing(10);
@@ -144,6 +149,7 @@ MainWindow::MainWindow(QWidget *parent)
     QHBoxLayout *filaInferior = new QHBoxLayout;
     filaInferior->addWidget(botonCopiar);
     filaInferior->addWidget(botonLimpiar);
+    filaInferior->addWidget(botonSeguro);
     filaInferior->addStretch(); // Empuja "Salir" a la derecha
     filaInferior->addWidget(botonSalir);
 
@@ -192,5 +198,35 @@ MainWindow::MainWindow(QWidget *parent)
     //Salir
     connect(botonSalir, &QPushButton::clicked, this, &QWidget::close);
 
-    
+    //Limpiar: borra campos/resultados y re-habilita Generar
+    connect(botonLimpiar, &QPushButton::clicked, this, [this] {
+        campoApp->clear();
+        campoContraseña->clear();
+        areaResultados->clear();
+        botonGenerar->setEnabled(true);
+    });
+
+    //Modo seguro: al pulsarlo Generar se deshabilita; al desactivarlo vuelve a habilitarse
+    connect(botonSeguro, &QCheckBox::toggled, this, [this](bool checked) {
+        botonGenerar->setEnabled(!checked);
+    });
+
+    //Eliminar: al clicarlo, borra la app (clave y contraseña) y guarda los cambios
+    connect(botonEliminar, &QPushButton::clicked, this, [this]{
+        string app = campoApp->text().toStdString();
+        if (app.empty())
+        {
+            areaResultados->setPlainText("Escribe el nombre de la app.");
+            return;
+        }
+
+        if (!eliminarContraseña(app))
+        {
+            areaResultados->setPlainText(QString::fromStdString("La app \"" + app + "\" no existe."));
+            return;
+        }
+
+        guardar(clave, salt, opslimit, memlimit);
+        areaResultados->setPlainText(QString::fromStdString("Entrada de \"" + app + "\" eliminada."));
+    });
 }

@@ -92,7 +92,7 @@ string buscarContraseña(const string &app)
     return itApp->second; 
 }
 
-bool eliminarContraseña(const string &app, const string &contraseña)
+bool eliminarContraseña(const string &app)
 {
     auto itApp = gestionador.find(app);
     if (itApp == gestionador.end())
@@ -101,14 +101,7 @@ bool eliminarContraseña(const string &app, const string &contraseña)
         return false;
     }
 
-    gestionador[app].clear();
-    if (gestionador[app].empty())
-    {
-        return true;
-    }
-    else
-    {
-        cout << "Esa contraseña no existe en la app \"" << app << "\"." << endl;
-        return false;
-    }
+    // Borra la entrada completa (clave y valor) del mapa
+    gestionador.erase(itApp);
+    return true;
 }

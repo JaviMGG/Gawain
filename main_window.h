@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QLineEdit>
 #include <QTextEdit>
+#include <QCheckBox>
 
 class MainWindow : public QMainWindow
 {
@@ -32,6 +33,9 @@ private:
     QPushButton *botonCopiar;
     QPushButton *botonLimpiar;
     QPushButton *botonSalir;
+
+    // Checkbox seguro: si está marcado, el botón Generar queda deshabilitado
+    QCheckBox *botonSeguro;
 };
 
 #endif // MAIN_WINDOW_H

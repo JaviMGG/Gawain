@@ -28,7 +28,7 @@ static string pedirPasswordOculta(const string &mensaje)
     cout << endl;
     return password;
 }
-
+/*
 static void bienvenida(int opcion)
 {
     cout << "1. Generar Contraseña" << endl;
@@ -89,7 +89,7 @@ static void bienvenida(int opcion)
         break;
     }
 }
-
+*/
 int main(int argc, char *argv[])
 {
     ifstream entrada("archivo.txt");
