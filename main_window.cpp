@@ -5,6 +5,11 @@
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QLabel>
+#include <QApplication>
+#include <QClipboard>
+#include <QTimer>
+#include <QShortcut>
+#include <QKeySequence>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -93,9 +98,6 @@ MainWindow::MainWindow(QWidget *parent)
     campoApp = new QLineEdit;
     campoApp->setPlaceholderText("Ej. Gmail, GitHub, Banco...");
 
-    campoContraseña = new QLineEdit;
-    campoContraseña->setPlaceholderText("Contraseña...");
-
     // Botones principales
     botonGenerar = new QPushButton("Generar");
     botonBuscar = new QPushButton("Buscar");
@@ -135,7 +137,6 @@ MainWindow::MainWindow(QWidget *parent)
     QFormLayout *formulario = new QFormLayout(grupoDatos);
     formulario->setSpacing(12);
     formulario->addRow("App:", campoApp);
-    formulario->addRow("Contraseña:", campoContraseña);
     
     // 2. Fila de botones de acción
     QHBoxLayout *filaAcciones = new QHBoxLayout;
@@ -201,7 +202,6 @@ MainWindow::MainWindow(QWidget *parent)
     //Limpiar: borra campos/resultados y re-habilita Generar
     connect(botonLimpiar, &QPushButton::clicked, this, [this] {
         campoApp->clear();
-        campoContraseña->clear();
         areaResultados->clear();
         botonGenerar->setEnabled(true);
     });
@@ -228,5 +228,50 @@ MainWindow::MainWindow(QWidget *parent)
 
         guardar(clave, salt, opslimit, memlimit);
         areaResultados->setPlainText(QString::fromStdString("Entrada de \"" + app + "\" eliminada."));
+    });
+
+    //Copiar
+    connect(botonCopiar, &QPushButton::clicked, this, [this]{
+        QString texto = areaResultados->toPlainText();
+        if (texto.isEmpty()) {
+            areaResultados->setPlainText("No hay nada que copiar.");
+            return;
+        }
+        QApplication::clipboard()->setText(texto);
+        areaResultados->setPlainText("Contraseña copiada al portapapeles.");
+        
+        //limpiar portapapeles
+        QTimer::singleShot(15000, this, []{  // 15 segundos
+        QApplication::clipboard()->clear();
+        });
+    });
+
+    //Atajos de teclado
+    new QShortcut(QKeySequence("Ctrl+C"), this, [this]{
+        botonCopiar->click();
+    });
+
+    new QShortcut(QKeySequence("Ctrl+F"), this, [this]{
+        botonBuscar->click();
+    });
+
+    new QShortcut(QKeySequence("Ctrl+X"), this, [this]{
+        botonLimpiar->click();
+    });
+
+    new QShortcut(QKeySequence("Ctrl+L"), this, [this]{
+        botonListar->click();
+    });
+
+    new QShortcut(QKeySequence("Ctrl+D"), this, [this]{
+        botonEliminar->click();
+    });
+
+    new QShortcut(QKeySequence("Ctrl+S"), this, [this]{
+        botonSeguro->click();
+    });
+
+    new QShortcut(QKeySequence("Ctrl+Q"), this, [this]{
+        botonSalir->click();
     });
 }

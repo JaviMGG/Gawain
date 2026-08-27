@@ -18,7 +18,6 @@ public:
 private:
     // Campos de texto
     QLineEdit *campoApp;
-    QLineEdit *campoContraseña;
 
     // Botones de acción principales
     QPushButton *botonGenerar;
