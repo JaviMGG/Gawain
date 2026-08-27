@@ -17,7 +17,7 @@ Gestor de contraseñas de escritorio escrito en C++ como proyecto educativo.
   - Derivación de clave: **Argon2id** (MODERATE)
   - Cifrado autenticado: **AES-256-GCM**
 - Formato v2: los parámetros de derivación (`opslimit`, `memlimit`) viajan en la cabecera del archivo, así el coste puede subir en el futuro sin romper bases de datos antiguas
-- Contraseña maestra confirmada dos veces en la primera ejecución y oculta durante la introducción
+- Contraseña maestra confirmada dos veces en la primera ejecución mediante diálogo gráfico personalizado con logo
 - Clave y contraseña borradas de memoria al salir (`sodium_memzero`)
 - Permisos `0600` en la base de datos
 
@@ -34,7 +34,7 @@ El paso de "archivo de texto plano" a "base de datos cifrada":
 - Se separa el proyecto en módulos: lógica (`gawain.cpp/h`), persistencia (`persistence.cpp`) y cifrado (`cifrado.cpp/h`).
 - La contraseña maestra no se usa directamente: se deriva una clave de 32 bytes con **Argon2id** y un salt aleatorio de 16 bytes.
 - El contenido se cifra con **AES-256-GCM**, que además de cifrar firma los datos: si el archivo se manipula o la contraseña es incorrecta, el descifrado falla.
-- La contraseña se introduce oculta (apagando el eco de la terminal con `termios`).
+- La contraseña se introduce oculta mediante un diálogo gráfico personalizado (`QDialog` con logo, separador y `QLineEdit::Password`).
 
 ### Fase 4 — Endurecimiento
 Cinco mejoras de seguridad sobre la Fase 3:
@@ -48,12 +48,12 @@ Cinco mejoras de seguridad sobre la Fase 3:
 Migración de la consola a una ventana de escritorio con Qt Widgets:
 - ✅ **Refactor "cerebro sin boca"**: las funciones de lógica ya no imprimen nada; devuelven datos (`string`/`bool`) y es quien llama quien decide cómo mostrarlos. Condición previa para poder conectar cualquier interfaz.
 - ✅ **Proyecto CMake + primera ventana**: migrado a `CMakeLists.txt` con Qt6, clase `MainWindow` (hereda de `QMainWindow`) y bucle de eventos `QApplication::exec()`.
-- ✅ **Layout completo**: formulario (app/contraseña), botones de acción (generar, buscar, listar, eliminar), área de resultados y fila de utilidades (copiar, limpiar, modo seguro, salir).
+- ✅ **Layout completo**: formulario (app), botones de acción (generar, buscar, listar, eliminar), área de resultados y fila de utilidades (copiar, limpiar, modo seguro, salir).
 - ✅ **Señales/slots conectados**: cada botón enlaza con el módulo lógico mediante lambdas; generar y eliminar re-cifran y guardan la base de datos al instante.
 - ✅ **Tema oscuro**: paleta negra con ámbar/dorado extraída del logo, aplicada con hoja de estilos QSS; logo incrustado vía recursos Qt (`recursos.qrc`).
 - ✅ **Modo seguro**: casilla que deshabilita el botón Generar para consultar sin riesgo de sobrescribir; «Limpiar» lo rehabilita.
-- ⬜ Botón «Copiar al portapapeles» creado pero aún sin conectar.
-- ⬜ Campo «Contraseña» para guardar una propia: pendiente de conectar.
+- ✅ Botón «Copiar al portapapeles» conectado al portapapeles con auto-borrado a los 15s. Si la app no existe, muestra la lista de apps guardadas.
+- ✅ Contraseña maestra introducida mediante diálogo gráfico personalizado con logo y separador, en vez de terminal.
 
 ### Fase 6 — Publicación 🚧
 Publicación del código en GitHub bajo licencia MIT, con este README y sin datos sensibles en el repositorio.
@@ -73,11 +73,23 @@ cmake --build build
 
 ## Uso
 
-1. Al arrancar pide la contraseña maestra en la terminal; si es la primera vez se pide dos veces para confirmar.
+1. Al arrancar se abre un diálogo personalizado (con logo) para la contraseña maestra; si es la primera vez se pide dos veces para confirmar.
 2. Se abre la ventana: escribe el nombre de la app y usa **Generar**, **Buscar**, **Listar** o **Eliminar**.
 3. Cada cambio (generar/eliminar) se re-cifra y guarda al instante en `archivo.txt`.
 4. «Modo seguro» bloquea Generar; «Limpiar» borra los campos y lo rehabilita.
 5. En siguientes ejecuciones solo se pide la contraseña maestra; si es incorrecta hay un retardo de 2 segundos antes de salir.
+
+### Atajos de teclado
+
+| Atajo | Acción |
+|---|---|
+| `Ctrl+C` | Copiar contraseña al portapapeles |
+| `Ctrl+F` | Buscar contraseña de la app |
+| `Ctrl+L` | Listar todas las contraseñas |
+| `Ctrl+D` | Eliminar entrada de la app |
+| `Ctrl+S` | Activar/desactivar modo seguro |
+| `Ctrl+X` | Limpiar campos y resultados |
+| `Ctrl+Q` | Salir de la aplicación |
 
 ## Formato de la base de datos
 

@@ -3,9 +3,15 @@
 #include "cifrado.h"
 #include <fstream>
 #include <sstream>
-#include <termios.h>
-#include <unistd.h>
 #include <QApplication>
+#include <QDialog>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QFrame>
+#include <QMessageBox>
 #include "main_window.h"
 
 using namespace std;
@@ -14,84 +20,150 @@ unsigned char clave[32];
 unsigned long long opslimit = crypto_pwhash_OPSLIMIT_MODERATE;
 size_t memlimit = crypto_pwhash_MEMLIMIT_MODERATE;
 
-static string pedirPasswordOculta(const string &mensaje)
+static string pedirContrasena(const QString &titulo, const QString &mensaje)
 {
-    cout << mensaje;
-    termios atributos;
-    tcgetattr(STDIN_FILENO, &atributos);
-    termios sinEco = atributos;
-    sinEco.c_lflag &= ~ECHO;
-    tcsetattr(STDIN_FILENO, TCSANOW, &sinEco);
-    string password;
-    getline(cin, password);
-    tcsetattr(STDIN_FILENO, TCSANOW, &atributos);
-    cout << endl;
-    return password;
-}
-/*
-static void bienvenida(int opcion)
-{
-    cout << "1. Generar Contraseña" << endl;
-    cout << "2. Listar Contraseña" << endl;
-    cout << "3. Buscar Contraseña" << endl;
-    cout << "4. Eliminar Contraseña" << endl;
-    cout << "0. Salir" << endl;
+    QDialog dialogo(nullptr);
+    dialogo.setWindowTitle(titulo);
+    dialogo.setFixedWidth(360);
+    dialogo.setWindowIcon(QIcon(":/logo.png"));
+    dialogo.setAutoFillBackground(true);
 
-    switch (opcion)
-    {
-    case 1:
-    {
-        string app;
-        cout << "¿Para qué app?" << endl;
-        cin >> app;
-        string cont = generarContraseña();
-        añadirContraseñas(app, cont);
-        guardar(clave, salt, opslimit, memlimit);
-        cout << "Contraseña generada para " << app << ": " << cont << endl;
-        break;
-    }
-    case 2:
-        cout << listarTodo();
-        break;
-    case 3:
-    {
-        string app;
-        cout << "¿De qué app quieres ver la contraseña?" << endl;
-        cin >> app;
-        string r = buscarContraseña(app);
-        if (r.empty())
-        {
-            cout << "Esta app no existe" << endl;
-        }
-        else
-        {
-            cout << r << endl;
-        }
-        break;
-    }
-    case 4:
-    {
-        string app;
-        string contraseña;
-        cout << "¿De qué app?" << endl;
-        cin >> app;
-        cout << "¿Qué contraseña quieres eliminar?" << endl;
-        cin >> contraseña;
-        if (eliminarContraseña(app, contraseña))
-        {
-            guardar(clave, salt, opslimit, memlimit);
-            cout << "Eliminacion realizada con éxito" << endl;
-        }
-        break;
-    }
-    default:
-        cout << "Opción no válida." << endl;
-        break;
-    }
+    QPalette pal = dialogo.palette();
+    pal.setColor(QPalette::Window, QColor("#0f0d0b"));
+    pal.setColor(QPalette::WindowText, QColor("#ece4d8"));
+    dialogo.setPalette(pal);
+
+    QVBoxLayout *layout = new QVBoxLayout(&dialogo);
+    layout->setContentsMargins(24, 20, 24, 20);
+    layout->setSpacing(12);
+
+    // Logo
+    QLabel *etiquetaLogo = new QLabel;
+    etiquetaLogo->setPixmap(QPixmap(":/logo.png").scaled(64, 64, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    etiquetaLogo->setAlignment(Qt::AlignCenter);
+    layout->addWidget(etiquetaLogo);
+
+    // Separador
+    QFrame *separador = new QFrame;
+    separador->setFrameShape(QFrame::HLine);
+    separador->setStyleSheet("background-color: #3d3020; max-height: 1px;");
+    layout->addWidget(separador);
+
+    // Mensaje
+    QLabel *etiquetaMensaje = new QLabel(mensaje);
+    etiquetaMensaje->setAlignment(Qt::AlignCenter);
+    layout->addWidget(etiquetaMensaje);
+
+    // Campo de contraseña
+    QLineEdit *campo = new QLineEdit;
+    campo->setEchoMode(QLineEdit::Password);
+    campo->setPlaceholderText("Contraseña...");
+    layout->addWidget(campo);
+
+    // Botones
+    QHBoxLayout *filaBotones = new QHBoxLayout;
+    filaBotones->addStretch();
+    QPushButton *botonCancelar = new QPushButton("Cancelar");
+    QPushButton *botonAceptar = new QPushButton("Aceptar");
+    filaBotones->addWidget(botonCancelar);
+    filaBotones->addWidget(botonAceptar);
+    layout->addLayout(filaBotones);
+
+    QObject::connect(botonCancelar, &QPushButton::clicked, &dialogo, &QDialog::reject);
+    QObject::connect(botonAceptar, &QPushButton::clicked, &dialogo, &QDialog::accept);
+    QObject::connect(campo, &QLineEdit::returnPressed, &dialogo, &QDialog::accept);
+
+    campo->setFocus();
+
+    if (dialogo.exec() == QDialog::Accepted)
+        return campo->text().toStdString();
+
+    return "";
 }
-*/
+
 int main(int argc, char *argv[])
 {
+    QApplication app(argc, argv);
+
+    // --- TEMA OSCURO ---
+    app.setStyleSheet(R"(
+        QMainWindow, QWidget {
+            background-color: #0f0d0b;
+            color: #ece4d8;
+            font-family: 'Segoe UI', Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        QLineEdit {
+            background-color: #191512;
+            border: 1px solid #3d3020;
+            border-radius: 6px;
+            padding: 8px;
+            color: #ffffff;
+            selection-background-color: #6f4b1a;
+        }
+        QLineEdit:focus {
+            border: 1px solid #e99a2d;
+        }
+        QTextEdit {
+            background-color: #120f0c;
+            border: 1px solid #3d3020;
+            border-radius: 6px;
+            padding: 10px;
+            color: #e0b047;
+            font-family: 'Consolas', monospace;
+        }
+        QPushButton {
+            background-color: #251d11;
+            border: 1px solid #45351c;
+            border-radius: 6px;
+            padding: 8px 16px;
+            color: #ffffff;
+            font-weight: bold;
+        }
+        QPushButton:hover {
+            background-color: #33280f;
+            border: 1px solid #ba601c;
+        }
+        QPushButton:pressed {
+            background-color: #e99a2d;
+            border: 1px solid #e99a2d;
+            color: #0b0a0a;
+        }
+        QPushButton:disabled {
+            background-color: #171310;
+            border: 1px solid #2c2317;
+            color: #6b5f4d;
+        }
+        QGroupBox {
+            border: 1px solid #3d3020;
+            border-radius: 8px;
+            margin-top: 14px;
+            font-weight: bold;
+        }
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            left: 12px;
+            padding: 0 5px;
+            color: #b39b74;
+        }
+        #botonSalir {
+            background-color: #7e2410;
+            border: 1px solid #a33413;
+        }
+        #botonSalir:hover {
+            background-color: #a33413;
+        }
+        #botonSalir:pressed {
+            background-color: #d0430f;
+        }
+        QLabel {
+            color: #ece4d8;
+        }
+        QMessageBox {
+            background-color: #0f0d0b;
+        }
+    )");
+
     ifstream entrada("archivo.txt");
     string contenido;
     if (entrada)
@@ -103,24 +175,51 @@ int main(int argc, char *argv[])
 
     if (!extraerSaltDeContenido(contenido, salt))
     {
-        // Archivo nuevo: generar salt, confirmar contraseña 2 veces.
         generarSalt(salt);
         opslimit = crypto_pwhash_OPSLIMIT_MODERATE;
         memlimit = crypto_pwhash_MEMLIMIT_MODERATE;
 
         string contraseñaM1, contraseñaM2;
-        do
+        bool confirmada = false;
+
+        while (!confirmada)
         {
-            contraseñaM1 = pedirPasswordOculta("Por favor, escribe la contraseña maestra:");
-            contraseñaM2 = pedirPasswordOculta("Por favor, escribe la contraseña maestra de nuevo:");
-        } while (contraseñaM1 != contraseñaM2);
+            contraseñaM1 = pedirContrasena(
+                "Gawain - Nueva contraseña",
+                "Introduce la contraseña maestra:");
+
+            if (contraseñaM1.empty()) return 0;
+
+            contraseñaM2 = pedirContrasena(
+                "Gawain - Confirmar contraseña",
+                "Confirma la contraseña maestra:");
+
+            if (contraseñaM2.empty()) return 0;
+
+            if (contraseñaM1 == contraseñaM2)
+            {
+                confirmada = true;
+            }
+            else
+            {
+                QMessageBox::warning(
+                    nullptr,
+                    "Error",
+                    "Las contraseñas no coinciden. Inténtalo de nuevo.");
+            }
+        }
+
         pw = contraseñaM1;
     }
     else
     {
-        // Archivo existente: extraer opslimit y memlimit del contenido v2.
         extraerParametrosDeContenido(contenido, opslimit, memlimit);
-        pw = pedirPasswordOculta("Por favor, escribe la contraseña maestra:");
+
+        pw = pedirContrasena(
+            "Gawain - Contraseña maestra",
+            "Introduce la contraseña maestra:");
+
+        if (pw.empty()) return 0;
     }
 
     derivarClave(pw, salt, clave, opslimit, memlimit);
@@ -128,17 +227,17 @@ int main(int argc, char *argv[])
 
     if (!cargar(clave))
     {
-        sleep(2);
-        cout << "Contraseña maestra incorrecta." << endl;
+        QMessageBox::warning(
+            nullptr,
+            "Error",
+            "Contraseña maestra incorrecta.");
         return 1;
     }
 
-    QApplication app(argc, argv);
     MainWindow ventana;
     ventana.show();
     int resultado = app.exec();
 
-    cout << "Adios" << endl;
     sodium_memzero(clave, sizeof(clave));
     return resultado;
 }

@@ -19,79 +19,6 @@ MainWindow::MainWindow(QWidget *parent)
     resize(600, 500);
     setMinimumSize(550, 450);
 
-    // --- TEMA OSCURO (paleta extraída del logo: negros + ámbar/dorado/marrones) ---
-    setStyleSheet(R"(
-        QMainWindow, QWidget {
-            background-color: #0f0d0b;
-            color: #ece4d8;
-            font-family: 'Segoe UI', Helvetica, sans-serif;
-            font-size: 14px;
-        }
-        QLineEdit {
-            background-color: #191512;
-            border: 1px solid #3d3020;
-            border-radius: 6px;
-            padding: 8px;
-            color: #ffffff;
-            selection-background-color: #6f4b1a;
-        }
-        QLineEdit:focus {
-            border: 1px solid #e99a2d;
-        }
-        QTextEdit {
-            background-color: #120f0c;
-            border: 1px solid #3d3020;
-            border-radius: 6px;
-            padding: 10px;
-            color: #e0b047; /* dorado del logo */
-            font-family: 'Consolas', monospace;
-        }
-        QPushButton {
-            background-color: #251d11;
-            border: 1px solid #45351c;
-            border-radius: 6px;
-            padding: 8px 16px;
-            color: #ffffff;
-            font-weight: bold;
-        }
-        QPushButton:hover {
-            background-color: #33280f;
-            border: 1px solid #ba601c;
-        }
-        QPushButton:pressed {
-            background-color: #e99a2d;
-            border: 1px solid #e99a2d;
-            color: #0b0a0a;
-        }
-        QPushButton:disabled {
-            background-color: #171310;
-            border: 1px solid #2c2317;
-            color: #6b5f4d;
-        }
-        QGroupBox {
-            border: 1px solid #3d3020;
-            border-radius: 8px;
-            margin-top: 14px;
-            font-weight: bold;
-        }
-        QGroupBox::title {
-            subcontrol-origin: margin;
-            left: 12px;
-            padding: 0 5px;
-            color: #b39b74;
-        }
-        #botonSalir {
-            background-color: #7e2410;
-            border: 1px solid #a33413;
-        }
-        #botonSalir:hover {
-            background-color: #a33413;
-        }
-        #botonSalir:pressed {
-            background-color: #d0430f;
-        }
-    )");
-
     // --- INSTANCIACIÓN DE WIDGETS ---
 
     // Campos
@@ -232,11 +159,19 @@ MainWindow::MainWindow(QWidget *parent)
 
     //Copiar
     connect(botonCopiar, &QPushButton::clicked, this, [this]{
-        QString texto = areaResultados->toPlainText();
-        if (texto.isEmpty()) {
-            areaResultados->setPlainText("No hay nada que copiar.");
+        string textoApp = campoApp->text().toStdString();
+        if (textoApp.empty()) {
+            areaResultados->setPlainText("Por favor escribe el nombre de la app para copiar.");
             return;
         }
+        if (gestionador.count(textoApp) == 0)
+        {
+            areaResultados->setPlainText("El nombre de la app no se encuentra.\n\nApps guardadas:\n" + QString::fromStdString(listarTodo()));
+            return;
+        }
+        
+        botonBuscar->click();
+        QString texto = areaResultados->toPlainText();
         QApplication::clipboard()->setText(texto);
         areaResultados->setPlainText("Contraseña copiada al portapapeles.");
         
