@@ -4,9 +4,7 @@
 
 # Gawain
 
-Gestor de contraseñas de escritorio escrito en C++ como proyecto educativo.
-
-> ⚠️ **Aviso**: es un proyecto de aprendizaje, no una herramienta auditada. No lo uses para guardar contraseñas reales.
+Gestor de contraseñas de escritorio escrito en C++.
 
 ## Características
 
@@ -43,6 +41,9 @@ Cinco mejoras de seguridad sobre la Fase 3:
 3. **Formato v2**: la cabecera del archivo pasa a ser `v2|opslimit|memlimit|salt|nonce|cifrado`. Los parámetros de Argon2id viajan dentro del propio archivo, de modo que subir el coste de derivación en el futuro no rompe las bases de datos antiguas.
 4. **Retardo** de 2 segundos cuando la contraseña maestra es incorrecta.
 5. **Permisos 0600** en la base de datos (solo el propietario puede leerla/escribirla).
+6. **Checks de error** en `guardar()`: aborta si el cifrado falla o el archivo no se abre, evitando pérdida de datos.
+7. **Try-catch** en el parsing del formato v2, evitando crashes con archivos corruptos.
+8. **Validación de nombres**: rechaza caracteres (`|`, `\n`, `\r`) que podrían corromper la base de datos.
 
 ### Fase 5 — Interfaz gráfica con Qt ✅
 Migración de la consola a una ventana de escritorio con Qt Widgets:
@@ -55,7 +56,7 @@ Migración de la consola a una ventana de escritorio con Qt Widgets:
 - ✅ Botón «Copiar al portapapeles» conectado al portapapeles con auto-borrado a los 15s. Si la app no existe, muestra la lista de apps guardadas.
 - ✅ Contraseña maestra introducida mediante diálogo gráfico personalizado con logo y separador, en vez de terminal.
 
-### Fase 6 — Publicación 🚧
+### Fase 6 — Publicación ✅
 Publicación del código en GitHub bajo licencia MIT, con este README y sin datos sensibles en el repositorio.
 
 ## Compilación
@@ -77,7 +78,7 @@ cmake --build build
 2. Se abre la ventana: escribe el nombre de la app y usa **Generar**, **Buscar**, **Listar** o **Eliminar**.
 3. Cada cambio (generar/eliminar) se re-cifra y guarda al instante en `archivo.txt`.
 4. «Modo seguro» bloquea Generar; «Limpiar» borra los campos y lo rehabilita.
-5. En siguientes ejecuciones solo se pide la contraseña maestra; si es incorrecta hay un retardo de 2 segundos antes de salir.
+5. En siguientes ejecuciones solo se pide la contraseña maestra; si es incorrecta aparece un aviso y se cierra la aplicación.
 
 ### Atajos de teclado
 
