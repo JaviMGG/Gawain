@@ -83,7 +83,7 @@ cmake --build build
 
 | Atajo | Acción |
 |---|---|
-| `Ctrl+C` | Copiar contraseña al portapapeles |
+| `Ctrl+Shift+C` | Copiar contraseña al portapapeles |
 | `Ctrl+F` | Buscar contraseña de la app |
 | `Ctrl+L` | Listar todas las contraseñas |
 | `Ctrl+D` | Eliminar entrada de la app |

@@ -116,11 +116,23 @@ MainWindow::MainWindow(QWidget *parent)
             areaResultados->setPlainText("Escribe el nombre de la app.");
             return;
         }
+        if (app.find('|') != string::npos ||
+            app.find('\n') != string::npos ||
+            app.find('\r') != string::npos)
+        {
+            areaResultados->setPlainText("El nombre de la app no puede contener | o saltos de línea.");
+            return;
+        }
         string cont = generarContraseña();
         añadirContraseñas(app, cont);
-        guardar(clave, salt, opslimit, memlimit);
-        areaResultados->setPlainText(QString::fromStdString(
-            "Contraseña generada para " + app + ":\n" + cont));
+        if(!guardar(clave, salt, opslimit, memlimit))
+        {
+            areaResultados->setPlainText("No se ha podido guardar correctamente.");
+        }
+        else
+        {
+            areaResultados->setPlainText(QString::fromStdString("Contraseña generada para " + app + ":\n" + cont));
+        }
     });
 
     //Salir
@@ -146,6 +158,13 @@ MainWindow::MainWindow(QWidget *parent)
             areaResultados->setPlainText("Escribe el nombre de la app.");
             return;
         }
+        if (app.find('|') != string::npos ||
+            app.find('\n') != string::npos ||
+            app.find('\r') != string::npos)
+        {
+            areaResultados->setPlainText("El nombre de la app no puede contener | o saltos de línea.");
+            return;
+        }
 
         if (!eliminarContraseña(app))
         {
@@ -153,8 +172,16 @@ MainWindow::MainWindow(QWidget *parent)
             return;
         }
 
-        guardar(clave, salt, opslimit, memlimit);
-        areaResultados->setPlainText(QString::fromStdString("Entrada de \"" + app + "\" eliminada."));
+        if (guardar(clave, salt, opslimit, memlimit))
+        {
+            areaResultados->setPlainText(QString::fromStdString("Entrada de \"" + app + "\" eliminada."));
+        }
+        else
+        {
+            areaResultados->setPlainText(QString::fromStdString("Entrada de \"" + app + "\" no se ha podido eliminar."));
+        }
+        
+
     });
 
     //Copiar
@@ -182,7 +209,7 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     //Atajos de teclado
-    new QShortcut(QKeySequence("Ctrl+C"), this, [this]{
+    new QShortcut(QKeySequence("Ctrl+Shift+C"), this, [this]{
         botonCopiar->click();
     });
 

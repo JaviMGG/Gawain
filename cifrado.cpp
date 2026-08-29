@@ -2,6 +2,7 @@
 #include <sstream>
 #include <vector>
 #include <iostream>
+#include <exception>
 
 using namespace std;
 
@@ -127,7 +128,7 @@ bool descifrarArchivo(const string &contenido, const unsigned char clave[32], st
     return true;
 }
 
-void derivarClave(const string &password, const unsigned char salt[16], unsigned char clave[32], unsigned long long opslimit, size_t memlimit)
+bool derivarClave(const string &password, const unsigned char salt[16], unsigned char clave[32], unsigned long long opslimit, size_t memlimit)
 {
     // Argon2id convierte la contraseña en una clave de 32 bytes.
     // opslimit y memlimit controlan cuánto cuesta (más = más seguro = más lento).
@@ -139,7 +140,9 @@ void derivarClave(const string &password, const unsigned char salt[16], unsigned
                       crypto_pwhash_ALG_ARGON2ID13) != 0)
     {
         cerr << "Error al derivar la clave." << endl;
+        return false;
     }
+    return true;
 }
 
 bool generarSalt(unsigned char salt[16])
@@ -179,7 +182,14 @@ bool extraerParametrosDeContenido(const string &contenido, unsigned long long &o
         return false;
     }
 
-    opslimit = stoull(opsStr);
-    memlimit = stoul(memStr);
+    try
+    {
+        opslimit = stoull(opsStr);
+        memlimit = stoul(memStr);
+    }
+    catch(const std::exception& e)
+    {
+        return false;
+    }
     return true;
 }

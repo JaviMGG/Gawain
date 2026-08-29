@@ -21,7 +21,7 @@ string listarContraseñas(const string &app);
 string listarTodo();
 string buscarContraseña(const string &app);
 bool eliminarContraseña(const string &app);
-void guardar(const unsigned char clave[32], const unsigned char salt[16], unsigned long long opslimit, size_t memlimit);
+bool guardar(const unsigned char clave[32], const unsigned char salt[16], unsigned long long opslimit, size_t memlimit);
 bool cargar(const unsigned char clave[32]);
 
 #endif

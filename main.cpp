@@ -222,9 +222,16 @@ int main(int argc, char *argv[])
         if (pw.empty()) return 0;
     }
 
-    derivarClave(pw, salt, clave, opslimit, memlimit);
-    sodium_memzero(&pw[0], pw.size());
-
+    if (!derivarClave(pw, salt, clave, opslimit, memlimit))
+    {
+        QMessageBox::critical(nullptr, "Error", "No se pudo derivar la clave.");
+        return 1;
+    }
+    
+    if (!pw.empty())
+        sodium_memzero(&pw[0], pw.size());
+    pw.clear();
+    
     if (!cargar(clave))
     {
         QMessageBox::warning(
