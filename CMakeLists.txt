@@ -21,3 +21,13 @@ target_link_libraries(gawain PRIVATE Qt6::Widgets sodium)
 
 # Warnings estrictos
 target_compile_options(gawain PRIVATE -Wall -Wextra)
+
+add_executable(gawain-host
+    host.cpp
+    gawain.cpp
+    persistence.cpp
+    cifrado.cpp
+)
+
+target_link_libraries(gawain-host PRIVATE Qt6::Widgets sodium)
+target_compile_options(gawain-host PRIVATE -Wall -Wextra)

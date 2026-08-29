@@ -3,6 +3,7 @@
 #include "cifrado.h"
 #include <fstream>
 #include <sstream>
+#include <sodium.h>
 #include <QApplication>
 #include <QDialog>
 #include <QVBoxLayout>
@@ -37,30 +38,25 @@ static string pedirContrasena(const QString &titulo, const QString &mensaje)
     layout->setContentsMargins(24, 20, 24, 20);
     layout->setSpacing(12);
 
-    // Logo
     QLabel *etiquetaLogo = new QLabel;
     etiquetaLogo->setPixmap(QPixmap(":/logo.png").scaled(64, 64, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     etiquetaLogo->setAlignment(Qt::AlignCenter);
     layout->addWidget(etiquetaLogo);
 
-    // Separador
     QFrame *separador = new QFrame;
     separador->setFrameShape(QFrame::HLine);
     separador->setStyleSheet("background-color: #3d3020; max-height: 1px;");
     layout->addWidget(separador);
 
-    // Mensaje
     QLabel *etiquetaMensaje = new QLabel(mensaje);
     etiquetaMensaje->setAlignment(Qt::AlignCenter);
     layout->addWidget(etiquetaMensaje);
 
-    // Campo de contraseña
     QLineEdit *campo = new QLineEdit;
     campo->setEchoMode(QLineEdit::Password);
     campo->setPlaceholderText("Contraseña...");
     layout->addWidget(campo);
 
-    // Botones
     QHBoxLayout *filaBotones = new QHBoxLayout;
     filaBotones->addStretch();
     QPushButton *botonCancelar = new QPushButton("Cancelar");
@@ -85,7 +81,6 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    // --- TEMA OSCURO ---
     app.setStyleSheet(R"(
         QMainWindow, QWidget {
             background-color: #0f0d0b;
@@ -164,7 +159,7 @@ int main(int argc, char *argv[])
         }
     )");
 
-    ifstream entrada("archivo.txt");
+    ifstream entrada(rutaBaseDatos());
     string contenido;
     if (entrada)
     {
@@ -241,7 +236,8 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    MainWindow ventana;
+    Vault v;
+    MainWindow ventana(v);
     ventana.show();
     int resultado = app.exec();
 

@@ -18,6 +18,8 @@ Gestor de contraseñas de escritorio escrito en C++.
 - Contraseña maestra confirmada dos veces en la primera ejecución mediante diálogo gráfico personalizado con logo
 - Clave y contraseña borradas de memoria al salir (`sodium_memzero`)
 - Permisos `0600` en la base de datos
+- **Host nativo** (`gawain-host`): puente para extensión de Firefox via Native Messaging, opera sobre la misma BD
+- Ruta de BD unificada en `~/.gawain/archivo.txt` (compartida entre GUI y host)
 
 ## Fases del proyecto
 
@@ -39,7 +41,7 @@ Cinco mejoras de seguridad sobre la Fase 3:
 1. **Confirmar contraseña maestra** dos veces en la primera ejecución, para no perder acceso por una errata.
 2. **Limpieza de memoria**: `sodium_memzero` borra la contraseña tras derivar la clave, y la clave al salir del programa.
 3. **Formato v2**: la cabecera del archivo pasa a ser `v2|opslimit|memlimit|salt|nonce|cifrado`. Los parámetros de Argon2id viajan dentro del propio archivo, de modo que subir el coste de derivación en el futuro no rompe las bases de datos antiguas.
-4. **Retardo** de 2 segundos cuando la contraseña maestra es incorrecta.
+4. **Aviso** mediante `QMessageBox` cuando la contraseña maestra es incorrecta (sin retardo).
 5. **Permisos 0600** en la base de datos (solo el propietario puede leerla/escribirla).
 6. **Checks de error** en `guardar()`: aborta si el cifrado falla o el archivo no se abre, evitando pérdida de datos.
 7. **Try-catch** en el parsing del formato v2, evitando crashes con archivos corruptos.
@@ -59,6 +61,14 @@ Migración de la consola a una ventana de escritorio con Qt Widgets:
 ### Fase 6 — Publicación ✅
 Publicación del código en GitHub bajo licencia MIT, con este README y sin datos sensibles en el repositorio.
 
+### Fase 7 — Host nativo (Native Messaging) ✅
+Puente para que una extensión de Firefox se comunique con Gawain:
+- **`gawain-host`**: segundo ejecutable que lee/escribe JSON por stdin/stdout (protocolo newline-delimited de Firefox Native Messaging).
+- Opera sobre la **misma base de datos** que el GUI (`~/.gawain/archivo.txt`).
+- Cada operación muestra el diálogo de contraseña maestra (misma seguridad que el GUI).
+- Ops disponibles: `generate` (genera sin guardar), `save` (guarda en la BD), `get` (consulta), `ping`, `quit`.
+- Manifest en `native-messaging-hosts/gawain-host.json` + script `scripts/instalar_host.sh`.
+
 ## Compilación
 
 Requisitos: compilador C++17, CMake, Qt 6 (Widgets) y libsodium.
@@ -69,16 +79,39 @@ sudo apt install build-essential cmake qt6-base-dev libsodium-dev
 
 cmake -B build
 cmake --build build
-./build/gawain
+./build/gawain          # GUI
+./build/gawain-host     # Host nativo (Native Messaging)
 ```
+
+## Instalar host para Firefox
+
+```bash
+bash scripts/instalar_host.sh
+```
+
+Copia el manifest a `~/.mozilla/native-messaging-hosts/` con la ruta absoluta del binario.
 
 ## Uso
 
 1. Al arrancar se abre un diálogo personalizado (con logo) para la contraseña maestra; si es la primera vez se pide dos veces para confirmar.
 2. Se abre la ventana: escribe el nombre de la app y usa **Generar**, **Buscar**, **Listar** o **Eliminar**.
-3. Cada cambio (generar/eliminar) se re-cifra y guarda al instante en `archivo.txt`.
+3. Cada cambio (generar/eliminar) se re-cifra y guarda al instante en `~/.gawain/archivo.txt`.
 4. «Modo seguro» bloquea Generar; «Limpiar» borra los campos y lo rehabilita.
 5. En siguientes ejecuciones solo se pide la contraseña maestra; si es incorrecta aparece un aviso y se cierra la aplicación.
+
+### Native Messaging (host)
+
+El host recibe JSON por stdin y responde JSON por stdout:
+
+| Op | Mensaje | Respuesta |
+|---|---|---|
+| `ping` | `{"op":"ping"}` | `{"ok":true}` |
+| `generate` | `{"op":"generate","app":"github.com"}` | `{"ok":true,"password":"..."}` |
+| `save` | `{"op":"save","app":"github.com","password":"..."}` | `{"ok":true}` |
+| `get` | `{"op":"get","app":"github.com"}` | `{"ok":true,"password":"..."}` |
+| `quit` | `{"op":"quit"}` | *(el host termina)* |
+
+Cada op (excepto `ping`/`quit`) muestra el diálogo de maestra y opera sobre la BD.
 
 ### Atajos de teclado
 
@@ -109,10 +142,13 @@ v2|opslimit|memlimit|salt|nonce|ciphertext
 ```
 main.cpp         arranque: desbloqueo + QApplication
 main_window.*    ventana principal (Qt): layouts, tema oscuro y señales/slots
-gawain.cpp/h     lógica: gestor de contraseñas ("cerebro", sin I/O)
+gawain.cpp/h     lógica: gestor de contraseñas + clase Vault
 persistence.cpp  guardar/cargar la base de datos
 cifrado.cpp/h    libsodium: Argon2id + AES-256-GCM, formato v2
+host.cpp         host nativo (Native Messaging): despacho JSON + diálogo maestra
 recursos.qrc     recursos embebidos (logo.png)
+native-messaging-hosts/  manifest del host para Firefox
+scripts/         scripts de instalación
 ```
 
 ## Licencia

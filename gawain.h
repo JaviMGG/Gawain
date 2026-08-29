@@ -4,24 +4,32 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <cstdlib>
 
 using namespace std;
 
-extern map<string, string> gestionador;
-extern unsigned char salt[16];
-extern unsigned char clave[32];
-extern unsigned long long opslimit;
-extern size_t memlimit;
+inline string rutaBaseDatos()
+{
+    const char *home = getenv("HOME");
+    return string(home ? home : ".") + "/.gawain/archivo.txt";
+}
 
-string generarContraseña();
-string getContraseñasToString(const string &app);
-string getContraseñasToStringConDelimitador(const string &app);
+extern map<string, string> gestionador;
+
 void añadirContraseñas(const string &app, const string &contraseña);
-string listarContraseñas(const string &app);
-string listarTodo();
-string buscarContraseña(const string &app);
-bool eliminarContraseña(const string &app);
 bool guardar(const unsigned char clave[32], const unsigned char salt[16], unsigned long long opslimit, size_t memlimit);
 bool cargar(const unsigned char clave[32]);
+
+class Vault {
+public:
+    string generarContraseña();
+    string getContraseñasToString(const string &app);
+    string getContraseñasToStringConDelimitador(const string &app);
+    void añadirContraseñas(const string &app, const string &contraseña);
+    string listarContraseñas(const string &app);
+    string listarTodo();
+    string buscarContraseña(const string &app);
+    bool eliminarContraseña(const string &app);
+};
 
 #endif

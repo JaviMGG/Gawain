@@ -7,14 +7,14 @@ using namespace std;
 
 const char elementosTeclado[] = "1234567890qwertyuioplkjhgfdsazxcvbnmABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-//diccionario con clave el nombre de la app y valor su contraseña
 map<string, string> gestionador;
 
-/**
- * Metodo que genera una contraseña.
- * @return string
-*/
-string generarContraseña()
+void añadirContraseñas(const string &app, const string &contraseña)
+{
+    gestionador[app] = contraseña;
+}
+
+string Vault::generarContraseña()
 {
     static mt19937 generador(random_device{}());
     static uniform_int_distribution<int> distribucion(0, sizeof(elementosTeclado) - 2);
@@ -26,73 +26,47 @@ string generarContraseña()
     return contraseña;
 }
 
-/**
- * Metodo que coge las contraseñas guardadas y las devuelve en texto
- * @param vector
- * @return string
- */
-string getContraseñasToString(const string &app)
+string Vault::getContraseñasToString(const string &app)
 {
     return gestionador[app];
 }
 
-/**
- * Metodo que coge todas las contraseñas guardadas y las devuelve en texto
- * @param vector
- * @return string
- */
-string getContraseñasToStringConDelimitador(const string &app)
+string Vault::getContraseñasToStringConDelimitador(const string &app)
 {
     return "|" + gestionador[app];
 }
 
-/**
- * Metodo que asocia una contraseña a una app.
- * @param string, string
-*/
-void añadirContraseñas(const string &app, const string &contraseña)
+void Vault::añadirContraseñas(const string &app, const string &contraseña)
 {
     gestionador[app] = contraseña;
 }
 
-/**
- * Metodo que devuelve todas las contraseñas de un vector.
- * @param string
- * @return string
-*/
-string listarContraseñas(const string &app)
+string Vault::listarContraseñas(const string &app)
 {
-    return gestionador[app];    
+    return gestionador[app];
 }
 
-/**
- * Metodo que devuelve toda la informacion del gestor.
- * @return string
- */
-string listarTodo()
+string Vault::listarTodo()
 {
     string todo;
     for (const auto &elemento : gestionador)
     {
-        // Añadimos la información de cada elemento al string 'todo'
         todo += " App: " + elemento.first + ", Contraseña: " + elemento.second + "\n";
     }
-    // Una vez terminado el bucle, devolvemos el string completo
     return todo;
 }
 
-string buscarContraseña(const string &app)
+string Vault::buscarContraseña(const string &app)
 {
     auto itApp = gestionador.find(app);
     if (itApp == gestionador.end())
     {
         return "";
     }
-    // Devuelve el valor directamente usando el iterador
-    return itApp->second; 
+    return itApp->second;
 }
 
-bool eliminarContraseña(const string &app)
+bool Vault::eliminarContraseña(const string &app)
 {
     auto itApp = gestionador.find(app);
     if (itApp == gestionador.end())
@@ -101,7 +75,6 @@ bool eliminarContraseña(const string &app)
         return false;
     }
 
-    // Borra la entrada completa (clave y valor) del mapa
     gestionador.erase(itApp);
     return true;
 }

@@ -1,0 +1,7 @@
+{
+    "name": "gawain-host",
+    "description": "Puente Firefox <-> Gawain",
+    "path": "/home/javier/Documentos/Gawain/build/gawain-host",
+    "type": "stdio",
+    "allowed_extensions": ["gawain@javimmgg"]
+}

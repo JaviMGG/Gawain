@@ -1,6 +1,7 @@
 #include <fstream>
 #include <sstream>
 #include <sys/stat.h>
+#include <filesystem>
 #include "gawain.h"
 #include "cifrado.h"
 
@@ -21,23 +22,27 @@ bool guardar(const unsigned char clave[32], const unsigned char salt[16], unsign
         return false;
     }
 
-    ofstream salida("archivo.txt");
+    string ruta = rutaBaseDatos();
+    string dir = filesystem::path(ruta).parent_path();
+    filesystem::create_directories(dir);
+
+    ofstream salida(ruta);
     
     if (!salida)
     {
         return false;
     }
     salida << textoCifrado << endl;
-    chmod("archivo.txt", S_IRUSR | S_IWUSR);
+    chmod(ruta.c_str(), S_IRUSR | S_IWUSR);
     return true;
 }
 
 bool cargar(const unsigned char clave[32])
 {
-    ifstream entrada("archivo.txt");
+    ifstream entrada(rutaBaseDatos());
     if (!entrada)
     {
-        return true;    // no hay archivo: nada que cargar
+        return true;
     }
 
     string contenido;
@@ -63,8 +68,6 @@ bool cargar(const unsigned char clave[32])
 
         if (linea.find('|') == string::npos)
         {
-            // Formato antiguo (sin separador): la contraseña generada
-            // ocupa siempre 40 caracteres al final de la línea.
             const size_t LARGO_GENERADA = 40;
             if (linea.size() <= LARGO_GENERADA)
             {
