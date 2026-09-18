@@ -1,0 +1,42 @@
+{
+    "manifest_version": 2,
+    "name": "Gawain",
+    "version": "1.0.0",
+    "description": "Gestor de contraseñas Gawain — detecta y guarda contraseñas de formularios",
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "gawain@javimmgg",
+            "strict_min_version": "140.0",
+            "data_collection_permissions": {
+                "required": ["none"]
+            }
+        }
+    },
+    "permissions": [
+        "nativeMessaging",
+        "activeTab",
+        "notifications",
+        "storage"
+    ],
+    "background": {
+        "scripts": ["background.js"]
+    },
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["yvain-bundle.js", "content.js"],
+            "run_at": "document_idle"
+        }
+    ],
+    "icons": {
+        "48": "icon-48.png",
+        "96": "icon-96.png"
+    },
+    "browser_action": {
+        "default_icon": {
+            "48": "icon-48.png",
+            "96": "icon-96.png"
+        },
+        "default_title": "Gawain"
+    }
+}

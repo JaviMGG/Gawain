@@ -24,6 +24,13 @@ cat > "$MANIFEST" <<EOF
 }
 EOF
 
+EXTENSION_DIR="$PROJECT_DIR/extension/gawain-extension"
+
+if [ -f "$EXTENSION_DIR/manifest.json" ]; then
+    echo "Extensión lista en $EXTENSION_DIR"
+    echo "Para cargarla temporalmente: about:debugging -> This Firefox -> Load Temporary Add-on -> $EXTENSION_DIR/manifest.json"
+fi
+
 chmod +x "$HOST_BIN"
 echo "Host instalado en $MANIFEST"
 echo "Binario: $HOST_BIN"

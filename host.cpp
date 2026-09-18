@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <cstdint>
 #include <sodium.h>
 #include <QApplication>
 #include <QDialog>
@@ -71,7 +72,26 @@ static string pedirContrasena(const QString &titulo, const QString &mensaje)
 static void responder(const QJsonObject &obj)
 {
     QJsonDocument doc(obj);
-    cout << doc.toJson(QJsonDocument::Compact).toStdString() << endl;
+    QByteArray json = doc.toJson(QJsonDocument::Compact);
+    uint32_t longitud = static_cast<uint32_t>(json.size());
+    cout.write(reinterpret_cast<const char*>(&longitud), sizeof(longitud));
+    cout.write(json.constData(), json.size());
+    cout.flush();
+}
+
+static bool leerMensaje(string &mensaje)
+{
+    uint32_t longitud = 0;
+    cin.read(reinterpret_cast<char*>(&longitud), sizeof(longitud));
+    if (!cin)
+        return false;
+
+    if (longitud > 1048576)
+        return false;
+
+    mensaje.resize(longitud);
+    cin.read(&mensaje[0], longitud);
+    return bool(cin);
 }
 
 static bool esNombreValido(const string &app)
@@ -223,7 +243,7 @@ int main(int argc, char *argv[])
     }
 
     string linea;
-    while (getline(cin, linea))
+    while (leerMensaje(linea))
     {
         if (linea.empty()) continue;
         QJsonDocument doc = QJsonDocument::fromJson(QByteArray::fromStdString(linea));
